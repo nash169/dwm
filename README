@@ -60,6 +60,7 @@ The configuration of dwm is done by creating a custom config.h
 and (re)compiling the source code.
 
 ## Patches
+- [alpha](https://dwm.suckless.org/patches/alpha/)
 - [vanitygaps](https://dwm.suckless.org/patches/vanitygaps/)
 - [hide vacant tags](https://dwm.suckless.org/patches/hide_vacant_tags/)
 - [rotate stack](https://dwm.suckless.org/patches/rotatestack/)
