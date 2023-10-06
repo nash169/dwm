@@ -1,0 +1,9 @@
+# user config file
+config.h
+
+# compilation output files
+drw.o
+dwm
+dwm.o
+util.o
+
