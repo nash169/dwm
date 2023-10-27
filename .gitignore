@@ -7,3 +7,5 @@ dwm
 dwm.o
 util.o
 
+# patches outputs
+*.orig
