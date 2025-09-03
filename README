@@ -46,3 +46,13 @@ Configuration
 -------------
 The configuration of dwm is done by creating a custom config.h
 and (re)compiling the source code.
+
+
+Sync upstream
+-------------
+Add suckless upstream
+    git remote add upstream git://git.suckless.org/dwm
+Fetch upstream
+    git fetch upstream
+Merge/Rebase
+    git merge[rebase] upstream/master
