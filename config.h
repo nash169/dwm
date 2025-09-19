@@ -116,29 +116,38 @@ static const Key keys[] = {
 	/* modifier                     key                         function        argument */
         { MODKEY,                       XK_space,                   spawn,          { .v = dmenucmd } },            // open dmenu bar
         { MODKEY,                       XK_Return,                  spawn,          { .v = termcmd } },             // open terminal
-	{ MODKEY,                       XK_s,                       togglescratch,  { .v = scratchpadcmd } },       // open scratchpad
-        { MODKEY,                       XK_p,                       spawn,          { .v = passmenucmd } },         // open passmenu bar
+        // { MODKEY,                       XK_a,                       spawn,          { .v =  } },
+        { MODKEY,                       XK_b,                       spawn,          { .v = bookmarkscmd } },        // bookmarks
+        { MODKEY,                       XK_c,                       spawn,          { .v = (const char*[]){"slock", NULL} } },     // close screen (run slock)
+        { MODKEY,                       XK_d,                       incnmaster,     { .i = -1 } },                  // decrease number of windows in master
         { MODKEY,                       XK_e,                       spawn,          { .v = lfcmd } },               // open file explorer
-        { MODKEY,                       XK_n,                       spawn,          { .v = neomuttcmd } },          // open email client
-        { MODKEY,                       XK_w,                       spawn,          { .v = screenshootcmd } },      // take screenshoot 
-        { MODKEY,                       XK_q,                       killclient,     { 0 } },                        // close window
-        { MODKEY,                       XK_t,                       setlayout,      { .v = &layouts[0] } },         // standard stack layout
-        { MODKEY,                       XK_m,                       setlayout,      { .v = &layouts[2] } },         // focus on particular window
         { MODKEY,                       XK_f,                       setlayout,      { .v = &layouts[1] } },         // all windows floating
-        { MODKEY | ShiftMask,           XK_Return,                  zoom,           { 0 } },                        // promote to master
-        { MODKEY | ShiftMask,           XK_f,                       togglefloating, { 0 } },                        // enter/exit floating mode for a single window
+        // { MODKEY,                       XK_g,                       spawn,          { .v = } },
+        { MODKEY,                       XK_h,                       setmfact,       { .f = -0.05 } },               // resize layout horizontally
+        { MODKEY,                       XK_i,                       incnmaster,     { .i = +1 } },                  // increase number of windows in master
         { MODKEY,                       XK_j,                       focusstack,     { .i = +1 } },                  // move focus to next window
         { MODKEY,                       XK_k,                       focusstack,     { .i = -1 } },                  // move focus to previous window
-        { MODKEY,                       XK_r,                       rotatestack,    { .i = -1 } },                  // rotate stack
-        { MODKEY | ShiftMask,           XK_0,                       tag,            { .ui = ~0 } },                 // active window followig across workspaces
-        { MODKEY,                       XK_h,                       setmfact,       { .f = -0.05 } },               // resize layout horizontally
         { MODKEY,                       XK_l,                       setmfact,       { .f = +0.05 } },
-        { MODKEY,                       XK_i,                       incnmaster,     { .i = +1 } },                  // increase number of windows in master
-        { MODKEY,                       XK_d,                       incnmaster,     { .i = -1 } },                  // decrease number of windows in master
-        { MODKEY,                       XK_b,                       spawn,          { .v = bookmarkscmd } },
+        { MODKEY,                       XK_m,                       setlayout,      { .v = &layouts[2] } },         // focus on particular window
+        { MODKEY,                       XK_n,                       spawn,          { .v = neomuttcmd } },          // open email client
+        // { MODKEY,                       XK_o,                       spawn,          { .v = } },
+        { MODKEY,                       XK_p,                       spawn,          { .v = passmenucmd } },         // open passmenu bar
+        { MODKEY,                       XK_q,                       killclient,     { 0 } },                        // close window
+        { MODKEY,                       XK_r,                       rotatestack,    { .i = -1 } },                  // rotate stack
+        { MODKEY,                       XK_s,                       togglescratch,  { .v = scratchpadcmd } },       // open scratchpad
+        { MODKEY,                       XK_t,                       setlayout,      { .v = &layouts[0] } },         // standard stack layout
+        // { MODKEY,                       XK_u,                       spawn,          { .v = } },
+        // { MODKEY,                       XK_v,                       spawn,          { .v = } },
+        { MODKEY,                       XK_w,                       spawn,          { .v = screenshootcmd } },      // take screenshoot 
+        { MODKEY,                       XK_x,                       spawn,          { .v = (const char*[]){ "sysact", NULL } } },    // system controls (reboot, poweroff, refresh etc.)
+        // { MODKEY,                       XK_y,                       spawn,          { .v = } },
+        // { MODKEY,                       XK_z,                       spawn,          { .v = } },
         { MODKEY,                       XK_0,                       view,           { .ui = ~0 } },                 // all windows in one workspace
-        { MODKEY,                       XK_comma,                   focusmon,       { .i = -1 } },                  // multi screen options
-        { MODKEY,                       XK_period,                  focusmon,       { .i = +1 } },
+        { MODKEY,                       XK_comma,                   focusmon,       { .i = -1 } },                  // change screen foucs?
+        { MODKEY,                       XK_period,                  focusmon,       { .i = +1 } },                  // change screen foucs?
+        { MODKEY | ShiftMask,           XK_f,                       togglefloating, { 0 } },                        // enter/exit floating mode for a single window
+        { MODKEY | ShiftMask,           XK_0,                       tag,            { .ui = ~0 } },                 // active window followig across workspaces
+        { MODKEY | ShiftMask,           XK_Return,                  zoom,           { 0 } },                        // promote to master
         { MODKEY | ShiftMask,           XK_comma,                   tagmon,         { .i = -1 } },
         { MODKEY | ShiftMask,           XK_period,                  tagmon,         { .i = +1 } },
         { 0,                            XF86XK_MonBrightnessUp,     spawn,          { .v = mon_light_up } },
