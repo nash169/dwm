@@ -49,6 +49,7 @@ static const Rule rules[] = {
     {"Gimp",            NULL,       NULL,           0,          1,          0,          0,          -1},
     {"Firefox",         NULL,       NULL,           1 << 8,     0,          0,          -1,         -1},
     {"st-256color",     NULL,       NULL,           0,          0,          1,          0,          -1},
+    {"st-256color",     NULL,       "fzfmenu",      0,          1,          1,          0,          -1},
     {NULL,              NULL,       "Event Tester", 0,          0,          0,          1,          -1}, /* xev */
 };
 
@@ -85,15 +86,16 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char* dmenucmd[] = {"dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", bg, "-nf", fg, "-sb", rhl, "-sf", hl, NULL};
-static const char* passmenucmd[] = {"passmenu", "-fn", dmenufont, "-nb", bg, "-nf", fg, "-sb", rhl, "-sf", hl, NULL};
-static const char* termcmd[] = {"st", NULL};
-static const char* lfcmd[] = {"st", "-e", "lfrun", NULL};
-static const char* neomuttcmd[] = {"st", "-e", "neomutt", NULL};
+static const char *dmenucmd[] = {"dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", bg, "-nf", fg, "-sb", rhl, "-sf", hl, NULL};
+static const char *passmenucmd[] = {"passmenu", "-fn", dmenufont, "-nb", bg, "-nf", fg, "-sb", rhl, "-sf", hl, NULL};
+static const char *termcmd[] = {"st", NULL};
+static const char *lfcmd[] = {"st", "-e", "lfrun", NULL};
+static const char *neomuttcmd[] = {"st", "-e", "neomutt", NULL};
 static const char scratchpadname[] = "scratchpad";
 static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
-static const char *screenshootcmd[] = {"/bin/sh", "-c", "screenshoot", NULL};
-static const char* bookmarkscmd[] = {"bookmarks", NULL};
+static const char *screenshootcmd[] = {"screenshoot", NULL};
+static const char *bookmarkscmd[] = {"bookmarks", NULL};
+static const char *fzfmenucmd[] = { "st", "-t", "fzfmenu", "-e", "fzfmenu", "-g", "120x34", NULL };
 
 /* monitor brightness */
 static const char* mon_light_up[] = {"xbacklight", "-inc", "10", NULL};
@@ -114,41 +116,42 @@ static const char* kbd_light_down[] = {"brightnessctl", "--device=smc::kbd_backl
 
 static const Key keys[] = {
 	/* modifier                     key                         function        argument */
-        { MODKEY,                       XK_space,                   spawn,          { .v = dmenucmd } },            // open dmenu bar
-        { MODKEY,                       XK_Return,                  spawn,          { .v = termcmd } },             // open terminal
-        // { MODKEY,                       XK_a,                       spawn,          { .v =  } },
-        { MODKEY,                       XK_b,                       spawn,          { .v = bookmarkscmd } },        // bookmarks
-        { MODKEY,                       XK_c,                       spawn,          { .v = (const char*[]){"slock", NULL} } },     // close screen (run slock)
-        { MODKEY,                       XK_d,                       incnmaster,     { .i = -1 } },                  // decrease number of windows in master
-        { MODKEY,                       XK_e,                       spawn,          { .v = lfcmd } },               // open file explorer
-        { MODKEY,                       XK_f,                       setlayout,      { .v = &layouts[1] } },         // all windows floating
+        { MODKEY,                       XK_space,                   spawn,          { .v = dmenucmd } },                                    // open dmenu bar
+        { MODKEY,                       XK_Return,                  spawn,          { .v = termcmd } },                                     // open terminal
+        { MODKEY | ShiftMask,           XK_Return,                  zoom,           { 0 } },                                                // promote to master
+        { MODKEY,                       XK_a,                       spawn,          { .v = fzfmenucmd } },
+        { MODKEY,                       XK_b,                       spawn,          { .v = bookmarkscmd } },                                // bookmarks
+        { MODKEY,                       XK_c,                       spawn,          { .v = (const char*[]){"slock", NULL} } },              // close screen (run slock)
+        { MODKEY,                       XK_d,                       incnmaster,     { .i = -1 } },                                          // decrease number of windows in master
+        { MODKEY,                       XK_e,                       spawn,          { .v = lfcmd } },                                       // open file explorer
+        { MODKEY,                       XK_f,                       setlayout,      { .v = &layouts[1] } },                                 // all windows floating
+        { MODKEY | ShiftMask,           XK_f,                       togglefloating, { 0 } },                                                // enter/exit floating mode for a single window
         // { MODKEY,                       XK_g,                       spawn,          { .v = } },
-        { MODKEY,                       XK_h,                       setmfact,       { .f = -0.05 } },               // resize layout horizontally
-        { MODKEY,                       XK_i,                       incnmaster,     { .i = +1 } },                  // increase number of windows in master
-        { MODKEY,                       XK_j,                       focusstack,     { .i = +1 } },                  // move focus to next window
-        { MODKEY,                       XK_k,                       focusstack,     { .i = -1 } },                  // move focus to previous window
+        { MODKEY,                       XK_h,                       setmfact,       { .f = -0.05 } },                                       // resize layout horizontally
+        { MODKEY,                       XK_i,                       incnmaster,     { .i = +1 } },                                          // increase number of windows in master
+        { MODKEY,                       XK_j,                       focusstack,     { .i = +1 } },                                          // move focus to next window
+        { MODKEY,                       XK_k,                       focusstack,     { .i = -1 } },                                          // move focus to previous window
         { MODKEY,                       XK_l,                       setmfact,       { .f = +0.05 } },
-        { MODKEY,                       XK_m,                       setlayout,      { .v = &layouts[2] } },         // focus on particular window
-        { MODKEY,                       XK_n,                       spawn,          { .v = neomuttcmd } },          // open email client
+        { MODKEY,                       XK_m,                       setlayout,      { .v = &layouts[2] } },                                 // focus on particular window
+        { MODKEY,                       XK_n,                       spawn,          { .v = neomuttcmd } },                                  // open email client
         // { MODKEY,                       XK_o,                       spawn,          { .v = } },
-        { MODKEY,                       XK_p,                       spawn,          { .v = passmenucmd } },         // open passmenu bar
-        { MODKEY,                       XK_q,                       killclient,     { 0 } },                        // close window
-        { MODKEY,                       XK_r,                       rotatestack,    { .i = -1 } },                  // rotate stack
-        { MODKEY,                       XK_s,                       togglescratch,  { .v = scratchpadcmd } },       // open scratchpad
-        { MODKEY,                       XK_t,                       setlayout,      { .v = &layouts[0] } },         // standard stack layout
+        { MODKEY,                       XK_p,                       spawn,          { .v = passmenucmd } },                                 // open passmenu bar
+        { MODKEY,                       XK_q,                       killclient,     { 0 } },                                                // close window
+        { MODKEY,                       XK_r,                       rotatestack,    { .i = -1 } },                                          // rotate stack
+        { MODKEY,                       XK_s,                       togglescratch,  { .v = scratchpadcmd } },                               // open scratchpad
+        { MODKEY,                       XK_t,                       setlayout,      { .v = &layouts[0] } },                                 // standard stack layout
         // { MODKEY,                       XK_u,                       spawn,          { .v = } },
-        // { MODKEY,                       XK_v,                       spawn,          { .v = } },
-        { MODKEY,                       XK_w,                       spawn,          { .v = screenshootcmd } },      // take screenshoot 
-        { MODKEY,                       XK_x,                       spawn,          { .v = (const char*[]){ "sysact", NULL } } },    // system controls (reboot, poweroff, refresh etc.)
+        { MODKEY,                       XK_v,                       spawn,          { .v = (const char*[]){ "vpnup", NULL } } },            // turn on vpn
+        { MODKEY | ShiftMask,           XK_v,                       spawn,          { .v = (const char*[]){ "vpndown", NULL } } },          // turn off vpn
+        { MODKEY,                       XK_w,                       spawn,          { .v = (const char*[]){ "screenshoot", NULL } } },      // take screenshoot 
+        { MODKEY,                       XK_x,                       spawn,          { .v = (const char*[]){ "sysact", NULL } } },           // system controls (reboot, poweroff, refresh etc.)
         // { MODKEY,                       XK_y,                       spawn,          { .v = } },
         // { MODKEY,                       XK_z,                       spawn,          { .v = } },
-        { MODKEY,                       XK_0,                       view,           { .ui = ~0 } },                 // all windows in one workspace
-        { MODKEY,                       XK_comma,                   focusmon,       { .i = -1 } },                  // change screen foucs?
-        { MODKEY,                       XK_period,                  focusmon,       { .i = +1 } },                  // change screen foucs?
-        { MODKEY | ShiftMask,           XK_f,                       togglefloating, { 0 } },                        // enter/exit floating mode for a single window
-        { MODKEY | ShiftMask,           XK_0,                       tag,            { .ui = ~0 } },                 // active window followig across workspaces
-        { MODKEY | ShiftMask,           XK_Return,                  zoom,           { 0 } },                        // promote to master
+        { MODKEY,                       XK_0,                       view,           { .ui = ~0 } },                                         // all windows in one workspace
+        { MODKEY | ShiftMask,           XK_0,                       tag,            { .ui = ~0 } },                                         // active window followig across workspaces
+        { MODKEY,                       XK_comma,                   focusmon,       { .i = -1 } },                                          // change screen foucs?
         { MODKEY | ShiftMask,           XK_comma,                   tagmon,         { .i = -1 } },
+        { MODKEY,                       XK_period,                  focusmon,       { .i = +1 } },                                          // change screen foucs?
         { MODKEY | ShiftMask,           XK_period,                  tagmon,         { .i = +1 } },
         { 0,                            XF86XK_MonBrightnessUp,     spawn,          { .v = mon_light_up } },
         { 0,                            XF86XK_MonBrightnessDown,   spawn,          { .v = mon_light_down } },
