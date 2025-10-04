@@ -100,6 +100,7 @@ struct Client {
 	unsigned int tags;
 	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen, isterminal, noswallow;
 	pid_t pid;
+	char scratchkey;
 	Client *next;
 	Client *snext;
 	Client *swallowing;
@@ -149,6 +150,7 @@ typedef struct {
 	int isterminal;
 	int noswallow;
 	int monitor;
+	const char scratchkey;
 } Rule;
 
 /* function declarations */
@@ -219,6 +221,7 @@ static void setup(void);
 static void seturgent(Client *c, int urg);
 static void showhide(Client *c);
 static void spawn(const Arg *arg);
+static void spawnscratch(const Arg *arg);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void tile(Monitor *m);
@@ -299,8 +302,6 @@ static xcb_connection_t *xcon;
 /* configuration, allows nested code to access above variables */
 #include "config.h"
 
-static unsigned int scratchtag = 1 << LENGTH(tags);
-
 /* compile-time check if all tags fit into an unsigned int bit array. */
 struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
 
@@ -317,6 +318,7 @@ applyrules(Client *c)
 	/* rule matching */
 	c->isfloating = 0;
 	c->tags = 0;
+	c->scratchkey = 0;
 	XGetClassHint(dpy, c->win, &ch);
 	class    = ch.res_class ? ch.res_class : broken;
 	instance = ch.res_name  ? ch.res_name  : broken;
@@ -331,6 +333,7 @@ applyrules(Client *c)
 			c->noswallow  = r->noswallow;
 			c->isfloating = r->isfloating;
 			c->tags |= r->tags;
+			c->scratchkey = r->scratchkey;
 			for (m = mons; m && m->num != r->monitor; m = m->next);
 			if (m)
 				c->mon = m;
@@ -1172,12 +1175,9 @@ manage(Window w, XWindowAttributes *wa)
 	c->y = MAX(c->y, c->mon->wy);
 	c->bw = borderpx;
 
-	selmon->tagset[selmon->seltags] &= ~scratchtag;
-	if (!strcmp(c->name, scratchpadname)) {
-		c->mon->tagset[c->mon->seltags] |= c->tags = scratchtag;
-		c->isfloating = True;
+	if (c->isfloating) {
 		c->x = c->mon->wx + (c->mon->ww / 2 - WIDTH(c) / 2);
-		c->y = c->mon->wy + (c->mon->wh / 2 - HEIGHT(c) / 2);
+		// c->y = c->mon->wy + (c->mon->wh / 2 - HEIGHT(c) / 2);
 	}
 
 	wc.border_width = c->bw;
@@ -1829,7 +1829,7 @@ spawn(const Arg *arg)
 
 	if (arg->v == dmenucmd)
 		dmenumon[0] = '0' + selmon->num;
-	selmon->tagset[selmon->seltags] &= ~scratchtag;
+
 	if (fork() == 0) {
 		if (dpy)
 			close(ConnectionNumber(dpy));
@@ -1842,6 +1842,27 @@ spawn(const Arg *arg)
 
 		execvp(((char **)arg->v)[0], (char **)arg->v);
 		die("dwm: execvp '%s' failed:", ((char **)arg->v)[0]);
+	}
+}
+
+void spawnscratch(const Arg *arg)
+{
+	struct sigaction sa;
+
+	if (fork() == 0) {
+		if (dpy)
+			close(ConnectionNumber(dpy));
+		setsid();
+
+		sigemptyset(&sa.sa_mask);
+		sa.sa_flags = 0;
+		sa.sa_handler = SIG_DFL;
+		sigaction(SIGCHLD, &sa, NULL);
+
+		execvp(((char **)arg->v)[1], ((char **)arg->v)+1);
+		fprintf(stderr, "dwm: execvp %s", ((char **)arg->v)[1]);
+		perror(" failed");
+		exit(EXIT_SUCCESS);
 	}
 }
 
@@ -1920,20 +1941,20 @@ togglescratch(const Arg *arg)
 	Client *c;
 	unsigned int found = 0;
 
-	for (c = selmon->clients; c && !(found = c->tags & scratchtag); c = c->next);
+	for (c = selmon->clients; c && !(found = c->scratchkey == ((char**)arg->v)[0][0]); c = c->next);
 	if (found) {
-		unsigned int newtagset = selmon->tagset[selmon->seltags] ^ scratchtag;
-		if (newtagset) {
-			selmon->tagset[selmon->seltags] = newtagset;
-			focus(NULL);
-			arrange(selmon);
-		}
+		c->tags = ISVISIBLE(c) ? 0 : selmon->tagset[selmon->seltags];
+		focus(NULL);
+		arrange(selmon);
+
 		if (ISVISIBLE(c)) {
 			focus(c);
 			restack(selmon);
 		}
-	} else
-		spawn(arg);
+
+	} else{
+		spawnscratch(arg);
+	}
 }
 
 void
