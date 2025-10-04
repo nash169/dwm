@@ -8,8 +8,8 @@ static const unsigned int snap = 32; /* snap pixel */
 static const int swallowfloating = 0; /* 1 means swallow floating windows by default */
 static const int showbar = 1; /* 0 means no bar */
 static const int topbar = 1; /* 0 means bottom bar */
-static const char* fonts[] = {"JetBrainsMono Nerd Font:size=12"};
-static const char dmenufont[] = "JetBrainsMono Nerd Font:size=12";
+static const char* fonts[] = {"JetBrainsMono Nerd Font:size=10"};
+static const char dmenufont[] = "JetBrainsMono Nerd Font:size=10";
 
 static const char col_gray1[] = "#222222";
 static const char col_gray2[] = "#444444";
@@ -46,11 +46,15 @@ static const Rule rules[] = {
      *	WM_NAME(STRING) = title
      */
     /* class            instance    title           tags mask   isfloating  isterminal  noswallow   monitor */
-    {"Gimp",            NULL,       NULL,           0,          1,          0,          0,          -1},
-    {"Firefox",         NULL,       NULL,           1 << 8,     0,          0,          -1,         -1},
-    {"st-256color",     NULL,       NULL,           0,          0,          1,          0,          -1},
-    {"st-256color",     NULL,       "fzfmenu",      0,          1,          1,          0,          -1},
-    {NULL,              NULL,       "Event Tester", 0,          0,          0,          1,          -1}, /* xev */
+    {"Gimp",            NULL,       NULL,           0,          1,          0,          0,          -1,             0},
+    {"Firefox",         NULL,       NULL,           1 << 8,     0,          0,          -1,         -1,             0},
+    {"st-256color",     NULL,       NULL,           0,          0,          1,          0,          -1,             0},
+    {"st-256color",     NULL,       "fzfsearch",    0,          1,          1,          0,          -1,             0},
+    {"st-256color",     NULL,       "fzfgo",        0,          1,          1,          0,          -1,             0},
+    {NULL,              NULL,       "Event Tester", 0,          0,          0,          1,          -1,             0}, /* xev */
+    {"st-256color",     NULL,       "scratchpad",   0,          1,          -1,         0,          -1,             's'},
+    {"st-256color",     NULL,       "lf",           0,          1,          -1,         0,          -1,             'l'},
+    {"st-256color",     NULL,       "neomutt",      0,          1,          -1,         0,          -1,             'n'},
 };
 
 /* layout(s) */
@@ -86,16 +90,18 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = {"dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", bg, "-nf", fg, "-sb", rhl, "-sf", hl, NULL};
-static const char *passmenucmd[] = {"passmenu", "-fn", dmenufont, "-nb", bg, "-nf", fg, "-sb", rhl, "-sf", hl, NULL};
-static const char *termcmd[] = {"st", NULL};
-static const char *lfcmd[] = {"st", "-e", "lfrun", NULL};
-static const char *neomuttcmd[] = {"st", "-e", "neomutt", NULL};
-static const char scratchpadname[] = "scratchpad";
-static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
+static const char *dmenucmd[]       = {"dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", bg, "-nf", fg, "-sb", rhl, "-sf", hl, NULL};
+static const char *passmenucmd[]    = {"passmenu", "-fn", dmenufont, "-nb", bg, "-nf", fg, "-sb", rhl, "-sf", hl, NULL};
+static const char *termcmd[]        = {"st", NULL};
 static const char *screenshootcmd[] = {"screenshoot", NULL};
-static const char *bookmarkscmd[] = {"bookmarks", NULL};
-static const char *fzfmenucmd[] = { "st", "-t", "fzfmenu", "-e", "fzfmenu", "-g", "120x34", NULL };
+static const char *bookmarkscmd[]   = {"bookmarks", NULL};
+static const char *slockcmd[]       = {"slock", NULL};
+static const char *fzfgocmd[]       = { "st", "-t", "fzfgo",     "-g", "120x20", "-e", "fzfgo", NULL };
+static const char *fzfsearchcmd[]   = { "st", "-t", "fzfsearch", "-g", "120x20", "-e", "fzfsearch", NULL };
+static const char *scratchpadcmd[]  = { "s", "st", "-t", "scratchpad",  "-g", "120x20", "-e", "tmux", NULL};
+static const char *lfcmd[]          = { "l", "st", "-t", "lf",          "-g", "120x20", "-e", "lfrun", NULL};
+static const char *neomuttcmd[]     = { "n", "st", "-t", "neomutt",     "-g", "150x25", "-e", "neomutt", NULL};
+static const char *abookcmd[]       = { "a", "st", "-t", "abook",       "-g", "120x20", "-e", "abook", NULL };
 
 /* monitor brightness */
 static const char* mon_light_up[] = {"xbacklight", "-inc", "10", NULL};
@@ -119,22 +125,23 @@ static const Key keys[] = {
         { MODKEY,                       XK_space,                   spawn,          { .v = dmenucmd } },                                    // open dmenu bar
         { MODKEY,                       XK_Return,                  spawn,          { .v = termcmd } },                                     // open terminal
         { MODKEY | ShiftMask,           XK_Return,                  zoom,           { 0 } },                                                // promote to master
-        { MODKEY,                       XK_a,                       spawn,          { .v = fzfmenucmd } },
+        { MODKEY,                       XK_a,                       spawn,          { .v = abookcmd } },
         { MODKEY,                       XK_b,                       spawn,          { .v = bookmarkscmd } },                                // bookmarks
-        { MODKEY,                       XK_c,                       spawn,          { .v = (const char*[]){"slock", NULL} } },              // close screen (run slock)
+        { MODKEY,                       XK_c,                       spawn,          { .v = slockcmd } },                                    // close screen (run slock)
         { MODKEY,                       XK_d,                       incnmaster,     { .i = -1 } },                                          // decrease number of windows in master
-        { MODKEY,                       XK_e,                       spawn,          { .v = lfcmd } },                                       // open file explorer
+        { MODKEY,                       XK_e,                       togglescratch,  { .v = lfcmd } },                                       // open file explorer
         { MODKEY,                       XK_f,                       setlayout,      { .v = &layouts[1] } },                                 // all windows floating
         { MODKEY | ShiftMask,           XK_f,                       togglefloating, { 0 } },                                                // enter/exit floating mode for a single window
-        // { MODKEY,                       XK_g,                       spawn,          { .v = } },
+	{ MODKEY,                       XK_g,                       togglebar,      { 0 } },
         { MODKEY,                       XK_h,                       setmfact,       { .f = -0.05 } },                                       // resize layout horizontally
         { MODKEY,                       XK_i,                       incnmaster,     { .i = +1 } },                                          // increase number of windows in master
         { MODKEY,                       XK_j,                       focusstack,     { .i = +1 } },                                          // move focus to next window
         { MODKEY,                       XK_k,                       focusstack,     { .i = -1 } },                                          // move focus to previous window
         { MODKEY,                       XK_l,                       setmfact,       { .f = +0.05 } },
         { MODKEY,                       XK_m,                       setlayout,      { .v = &layouts[2] } },                                 // focus on particular window
-        { MODKEY,                       XK_n,                       spawn,          { .v = neomuttcmd } },                                  // open email client
-        // { MODKEY,                       XK_o,                       spawn,          { .v = } },
+        { MODKEY,                       XK_n,                       togglescratch,  { .v = neomuttcmd } },                                  // open email client
+        { MODKEY,                       XK_o,                       spawn,          { .v = fzfgocmd } },
+        { MODKEY | ShiftMask,           XK_o,                       spawn,          { .v = fzfsearchcmd } },
         { MODKEY,                       XK_p,                       spawn,          { .v = passmenucmd } },                                 // open passmenu bar
         { MODKEY,                       XK_q,                       killclient,     { 0 } },                                                // close window
         { MODKEY,                       XK_r,                       rotatestack,    { .i = -1 } },                                          // rotate stack
@@ -143,7 +150,7 @@ static const Key keys[] = {
         // { MODKEY,                       XK_u,                       spawn,          { .v = } },
         { MODKEY,                       XK_v,                       spawn,          { .v = (const char*[]){ "vpnup", NULL } } },            // turn on vpn
         { MODKEY | ShiftMask,           XK_v,                       spawn,          { .v = (const char*[]){ "vpndown", NULL } } },          // turn off vpn
-        { MODKEY,                       XK_w,                       spawn,          { .v = (const char*[]){ "screenshoot", NULL } } },      // take screenshoot 
+        { MODKEY,                       XK_w,                       spawn,          { .v = screenshootcmd } },                              // take screenshoot 
         { MODKEY,                       XK_x,                       spawn,          { .v = (const char*[]){ "sysact", NULL } } },           // system controls (reboot, poweroff, refresh etc.)
         // { MODKEY,                       XK_y,                       spawn,          { .v = } },
         // { MODKEY,                       XK_z,                       spawn,          { .v = } },
