@@ -8,8 +8,8 @@ static const unsigned int snap = 32; /* snap pixel */
 static const int swallowfloating = 0; /* 1 means swallow floating windows by default */
 static const int showbar = 1; /* 0 means no bar */
 static const int topbar = 1; /* 0 means bottom bar */
-static const char* fonts[] = {"JetBrainsMono Nerd Font:size=10"};
-static const char dmenufont[] = "JetBrainsMono Nerd Font:size=10";
+static const char* fonts[] = {"JetBrainsMono Nerd Font:size=12"};
+static const char dmenufont[] = "JetBrainsMono Nerd Font:size=12";
 
 static const char col_gray1[] = "#222222";
 static const char col_gray2[] = "#444444";
@@ -108,9 +108,6 @@ static const char* mon_light_up[] = {"xbacklight", "-inc", "10", NULL};
 static const char* mon_light_down[] = {"xbacklight", "-dec", "10", NULL};
 
 /* volume control */
-static const char* audio_up[] = {"amixer", "set", "Master", "10%+", NULL};
-static const char* audio_down[] = {"amixer", "set", "Master", "10%-", NULL};
-static const char* audio_mute[] = {"amixer", "-D", "pulse", "set", "Master", "1+", "toogle", NULL};
 static const char* audio_play[] = {"mpc", "play-pausse", NULL};
 static const char* audio_stop[] = {"mpc", "stop", NULL};
 static const char* audio_next[] = {"mpc", "next", NULL};
@@ -152,7 +149,7 @@ static const Key keys[] = {
         { MODKEY | ShiftMask,           XK_v,                       spawn,          { .v = (const char*[]){ "vpndown", NULL } } },          // turn off vpn
         { MODKEY,                       XK_w,                       spawn,          { .v = screenshootcmd } },                              // take screenshoot 
         { MODKEY,                       XK_x,                       spawn,          { .v = (const char*[]){ "sysact", NULL } } },           // system controls (reboot, poweroff, refresh etc.)
-        // { MODKEY,                       XK_y,                       spawn,          { .v = } },
+        { MODKEY,                       XK_y,                       spawn,          { .v = (const char*[]){ "ytdlpadd", NULL } } },
         // { MODKEY,                       XK_z,                       spawn,          { .v = } },
         { MODKEY,                       XK_0,                       view,           { .ui = ~0 } },                                         // all windows in one workspace
         { MODKEY | ShiftMask,           XK_0,                       tag,            { .ui = ~0 } },                                         // active window followig across workspaces
@@ -164,9 +161,9 @@ static const Key keys[] = {
         { 0,                            XF86XK_MonBrightnessDown,   spawn,          { .v = mon_light_down } },
         { 0,                            XF86XK_KbdBrightnessUp,     spawn,          { .v = kbd_light_up } },
         { 0,                            XF86XK_KbdBrightnessDown,   spawn,          { .v = kbd_light_down } },
-        { 0,                            XF86XK_AudioRaiseVolume,    spawn,          { .v = audio_up } },
-        { 0,                            XF86XK_AudioLowerVolume,    spawn,          { .v = audio_down } },
-        { 0,                            XF86XK_AudioMute,           spawn,          { .v = audio_mute } },
+        { 0,                            XF86XK_AudioRaiseVolume,    spawn,          SHCMD("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0%- && wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%+") },
+        { 0,                            XF86XK_AudioLowerVolume,    spawn,          SHCMD("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0%+ && wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%-") },
+        { 0,                            XF86XK_AudioMute,           spawn,          SHCMD("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle") },
         { 0,                            XF86XK_AudioPlay,           spawn,          { .v = audio_play } },
         { 0,                            XF86XK_AudioStop,           spawn,          { .v = audio_stop } },
         { 0,                            XF86XK_AudioNext,           spawn,          { .v = audio_next } },
