@@ -8,8 +8,8 @@ static const unsigned int snap = 32; /* snap pixel */
 static const int swallowfloating = 0; /* 1 means swallow floating windows by default */
 static const int showbar = 1; /* 0 means no bar */
 static const int topbar = 1; /* 0 means bottom bar */
-static const char* fonts[] = {"JetBrainsMono Nerd Font:pixelsize=24"};
-static const char dmenufont[] = "JetBrainsMono Nerd Font:pixelsize=24";
+static const char* fonts[] = {"JetBrainsMono Nerd Font:pixelsize=18"};
+static const char dmenufont[] = "JetBrainsMono Nerd Font:pixelsize=18";
 
 static const char col_gray1[] = "#222222";
 static const char col_gray2[] = "#444444";
@@ -51,10 +51,12 @@ static const Rule rules[] = {
     {"st-256color",     NULL,       NULL,           0,          0,          1,          0,          -1,             0},
     {"st-256color",     NULL,       "fzfsearch",    0,          1,          1,          0,          -1,             0},
     {"st-256color",     NULL,       "fzfgo",        0,          1,          1,          0,          -1,             0},
+    {"st-256color",     NULL,       "fzfyay",       0,          1,          1,          0,          -1,             0},
     {NULL,              NULL,       "Event Tester", 0,          0,          0,          1,          -1,             0}, /* xev */
     {"st-256color",     NULL,       "scratchpad",   0,          1,          -1,         0,          -1,             's'},
     {"st-256color",     NULL,       "lf",           0,          1,          -1,         0,          -1,             'l'},
     {"st-256color",     NULL,       "neomutt",      0,          1,          -1,         0,          -1,             'n'},
+    {"st-256color",     NULL,       "abook",        0,          1,          -1,         0,          -1,             'a'},
 };
 
 /* layout(s) */
@@ -92,16 +94,15 @@ static const Layout layouts[] = {
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[]       = {"dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", bg, "-nf", fg, "-sb", rhl, "-sf", hl, NULL};
 static const char *passmenucmd[]    = {"passmenu", "-fn", dmenufont, "-nb", bg, "-nf", fg, "-sb", rhl, "-sf", hl, NULL};
-static const char *termcmd[]        = {"st", NULL};
-static const char *screenshootcmd[] = {"screenshoot", NULL};
-static const char *bookmarkscmd[]   = {"bookmarks", NULL};
-static const char *slockcmd[]       = {"slock", NULL};
+
 static const char *fzfgocmd[]       = { "st", "-t", "fzfgo",     "-g", "120x20", "-e", "fzfgo", NULL };
 static const char *fzfsearchcmd[]   = { "st", "-t", "fzfsearch", "-g", "120x20", "-e", "fzfsearch", NULL };
+static const char *fzfyaycmd[]      = { "st", "-t", "fzfyay",    "-g", "120x20", "-e", "fzfyay", NULL };
+
 static const char *scratchpadcmd[]  = { "s", "st", "-t", "scratchpad",  "-g", "120x20", "-e", "tmux", NULL};
 static const char *lfcmd[]          = { "l", "st", "-t", "lf",          "-g", "120x20", "-e", "lfrun", NULL};
 static const char *neomuttcmd[]     = { "n", "st", "-t", "neomutt",     "-g", "150x25", "-e", "neomutt", NULL};
-static const char *abookcmd[]       = { "a", "st", "-t", "abook",       "-g", "120x20", "-e", "abook", NULL };
+static const char *abookcmd[]       = { "a", "st", "-t", "abookgpg",    "-g", "120x20", "-e", "abook", NULL };
 
 /* monitor brightness */
 static const char* mon_light_up[] = {"xbacklight", "-inc", "10", NULL};
@@ -120,11 +121,12 @@ static const char* kbd_light_down[] = {"brightnessctl", "--device=smc::kbd_backl
 static const Key keys[] = {
 	/* modifier                     key                         function        argument */
         { MODKEY,                       XK_space,                   spawn,          { .v = dmenucmd } },                                    // open dmenu bar
-        { MODKEY,                       XK_Return,                  spawn,          { .v = termcmd } },                                     // open terminal
+        { MODKEY,                       XK_Return,                  spawn,          { .v = (const char*[]){ "st", NULL } } },               // open terminal
         { MODKEY | ShiftMask,           XK_Return,                  zoom,           { 0 } },                                                // promote to master
         { MODKEY,                       XK_a,                       spawn,          { .v = abookcmd } },
-        { MODKEY,                       XK_b,                       spawn,          { .v = bookmarkscmd } },                                // bookmarks
-        { MODKEY,                       XK_c,                       spawn,          { .v = slockcmd } },                                    // close screen (run slock)
+        { MODKEY,                       XK_b,                       spawn,          { .v = (const char*[]){ "bookmarks", NULL } } },        // bookmarks
+        { MODKEY | ShiftMask,           XK_b,                       spawn,          { .v = (const char*[]){ "bookmarkthis", NULL } } },     // bookmarks
+        { MODKEY,                       XK_c,                       spawn,          { .v = (const char*[]){ "slock", NULL } } },            // close screen (run slock)
         { MODKEY,                       XK_d,                       incnmaster,     { .i = -1 } },                                          // decrease number of windows in master
         { MODKEY,                       XK_e,                       togglescratch,  { .v = lfcmd } },                                       // open file explorer
         { MODKEY,                       XK_f,                       setlayout,      { .v = &layouts[1] } },                                 // all windows floating
@@ -144,13 +146,13 @@ static const Key keys[] = {
         { MODKEY,                       XK_r,                       rotatestack,    { .i = -1 } },                                          // rotate stack
         { MODKEY,                       XK_s,                       togglescratch,  { .v = scratchpadcmd } },                               // open scratchpad
         { MODKEY,                       XK_t,                       setlayout,      { .v = &layouts[0] } },                                 // standard stack layout
-        // { MODKEY,                       XK_u,                       spawn,          { .v = } },
+        { MODKEY,                       XK_u,                       spawn,          { .v = (const char*[]){ "dmenuunicode", NULL } } },
         { MODKEY,                       XK_v,                       spawn,          { .v = (const char*[]){ "vpnup", NULL } } },            // turn on vpn
         { MODKEY | ShiftMask,           XK_v,                       spawn,          { .v = (const char*[]){ "vpndown", NULL } } },          // turn off vpn
-        { MODKEY,                       XK_w,                       spawn,          { .v = screenshootcmd } },                              // take screenshoot 
+        { MODKEY,                       XK_w,                       spawn,          { .v = (const char*[]){ "screenshoot", NULL } } },      // take screenshoot 
         { MODKEY,                       XK_x,                       spawn,          { .v = (const char*[]){ "sysact", NULL } } },           // system controls (reboot, poweroff, refresh etc.)
         { MODKEY,                       XK_y,                       spawn,          { .v = (const char*[]){ "ytdlpadd", NULL } } },
-        // { MODKEY,                       XK_z,                       spawn,          { .v = } },
+        { MODKEY,                       XK_z,                       spawn,          { .v = fzfyaycmd } },
         { MODKEY,                       XK_0,                       view,           { .ui = ~0 } },                                         // all windows in one workspace
         { MODKEY | ShiftMask,           XK_0,                       tag,            { .ui = ~0 } },                                         // active window followig across workspaces
         { MODKEY,                       XK_comma,                   focusmon,       { .i = -1 } },                                          // change screen foucs?
@@ -187,7 +189,7 @@ static const Button buttons[] = {
 	{ ClkLtSymbol,          0,                          Button1,        setlayout,      { 0 } },
         { ClkLtSymbol,          0,                          Button3,        setlayout,      { .v = &layouts[2] } },
         { ClkWinTitle,          0,                          Button2,        zoom,           { 0 } },
-        { ClkStatusText,        0,                          Button2,        spawn,          { .v = termcmd } },
+        { ClkStatusText,        0,                          Button2,        spawn,          { .v = (const char*[]){ "st", NULL } } },
         { ClkClientWin,         MODKEY,                     Button1,        movemouse,      { 0 } },
         { ClkClientWin,         MODKEY,                     Button2,        togglefloating, { 0 } },
         { ClkClientWin,         MODKEY | ShiftMask,         Button1,        resizemouse,    { 0 } },
