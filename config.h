@@ -52,11 +52,11 @@ static const Rule rules[] = {
     {"st-256color",     NULL,       "fzfsearch",    0,          1,          1,          0,          -1,             0},
     {"st-256color",     NULL,       "fzfgo",        0,          1,          1,          0,          -1,             0},
     {"st-256color",     NULL,       "fzfyay",       0,          1,          1,          0,          -1,             0},
+    {"st-256color",     NULL,       "abook",        0,          1,          1,          0,          -1,             0},
     {NULL,              NULL,       "Event Tester", 0,          0,          0,          1,          -1,             0}, /* xev */
     {"st-256color",     NULL,       "scratchpad",   0,          1,          -1,         0,          -1,             's'},
     {"st-256color",     NULL,       "lf",           0,          1,          -1,         0,          -1,             'l'},
     {"st-256color",     NULL,       "neomutt",      0,          1,          -1,         0,          -1,             'n'},
-    {"st-256color",     NULL,       "abook",        0,          1,          -1,         0,          -1,             'a'},
 };
 
 /* layout(s) */
@@ -98,11 +98,11 @@ static const char *passmenucmd[]    = {"passmenu", "-fn", dmenufont, "-nb", bg, 
 static const char *fzfgocmd[]       = { "st", "-t", "fzfgo",     "-g", "120x20", "-e", "fzfgo", NULL };
 static const char *fzfsearchcmd[]   = { "st", "-t", "fzfsearch", "-g", "120x20", "-e", "fzfsearch", NULL };
 static const char *fzfyaycmd[]      = { "st", "-t", "fzfyay",    "-g", "120x20", "-e", "fzfyay", NULL };
+static const char *abookcmd[]       = { "st", "-t", "abook",    "-g", "120x20", "-e", "abookgpg", NULL };
 
 static const char *scratchpadcmd[]  = { "s", "st", "-t", "scratchpad",  "-g", "120x20", "-e", "tmux", NULL};
 static const char *lfcmd[]          = { "l", "st", "-t", "lf",          "-g", "120x20", "-e", "lfrun", NULL};
 static const char *neomuttcmd[]     = { "n", "st", "-t", "neomutt",     "-g", "150x25", "-e", "neomutt", NULL};
-static const char *abookcmd[]       = { "a", "st", "-t", "abookgpg",    "-g", "120x20", "-e", "abook", NULL };
 
 /* monitor brightness */
 static const char* mon_light_up[] = {"xbacklight", "-inc", "10", NULL};
